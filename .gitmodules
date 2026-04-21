@@ -1,0 +1,4 @@
+[submodule "themes/volantis"]
+	path = themes/volantis
+	url = https://github.com/RangerCui/hexo-theme-volantis.git
+	branch = 7.x

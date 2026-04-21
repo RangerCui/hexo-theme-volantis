@@ -1,0 +1,4 @@
+# Site-level overrides for volantis theme.
+# Merged on top of themes/volantis/_config.yml at build time.
+
+debug: false
