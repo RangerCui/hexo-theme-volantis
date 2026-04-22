@@ -1,14 +1,16 @@
-_site/
-.sass-cache/
-.jekyll-metadata
 .DS_Store
-node_modules
-package-lock.json
+node_modules/
 
-# Debug / local tooling artifacts (not part of the theme)
+# Hexo build artifacts（hexo clean 会重新生成）
+db.json
+public/
+.deploy_git/
+
+# Debug / local tooling artifacts (not part of the repo content)
 .playwright-mcp/
 .spec-workflow/
+.claude/
 *.png
 # Stylus 是源；.css 由 hexo-renderer-stylus 运行时生成
-source/css/_style/_tag-plugins/photogallery.css
+themes/volantis/source/css/_style/_tag-plugins/photogallery.css
 

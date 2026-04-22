@@ -4,132 +4,60 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-This is **hexo-theme-volantis**, a theme for the [Hexo](https://hexo.io/) static site generator. It's not a standalone app — it's meant to be cloned/installed into the `themes/volantis` directory of a Hexo blog. The published artifact is the npm package `hexo-theme-volantis`. Current branch is `7.x`, which contains breaking changes (`7.0.0-alpha`).
+**RangerCui 的个人博客仓库**。这不是一个可分发的 Hexo 主题包，而是主题 + 站点内容的合并体：根目录就是 Hexo 站点根，主题代码位于 `themes/volantis/`。
 
-There is no build step, no bundler, and no test suite. Development means editing EJS templates, Stylus files, and vanilla JS, and previewing with a Hexo site that loads this theme.
+从 <https://github.com/volantis-x/hexo-theme-volantis> 7.x 分支 fork 而来，经过大量个人化改造后与站点合并到一处。
 
-## Environment / commands
+## 目录结构
 
-Required versions (see `README.md`):
 ```
-Hexo: 5.4 ~ 6.x   (package.json depends on hexo ^8.1.1, 7.x branch targets newer)
-hexo-cli: 4.3 ~ latest
-node.js: 16.x LTS ~ latest LTS
+repo-root/
+├── _config.yml            # 站点 Hexo 配置（title / author / url / theme: volantis）
+├── package.json           # 站点依赖（hexo + generators + renderers）
+├── scaffolds/             # hexo new 模板
+├── source/                # 站点内容
+│   ├── _posts/            # 博文（AI 技术文等）
+│   ├── about/index.md     # 关于页
+│   ├── categories/index.md
+│   ├── tags/index.md
+│   └── photography/index.md   # 摄影页（调用 {% photogallery %}）
+└── themes/
+    └── volantis/          # 主题本体（原 fork 的内容）
+        ├── _config.yml    # 主题默认配置（cover / navbar / sidebar 等）
+        ├── _cdn.yml       # 外部资源 CDN 映射
+        ├── layout/        # EJS 模板
+        ├── scripts/       # Hexo 扩展（events / filters / helpers / tags）
+        ├── source/        # 主题静态资产（CSS/JS/photography 照片）
+        └── languages/     # i18n
 ```
 
-There is no `npm test`, `npm run build`, or lint script — `package.json`'s only script is a placeholder (`"test": "echo test"`). Do not add commands assuming they exist.
+## 开发命令
 
-To actually exercise the theme, you need a Hexo site that uses it. The CI workflow `.github/workflows/test-deploy.yml` demonstrates the pattern:
+从仓库根运行：
+
 ```bash
-git clone https://github.com/volantis-x/volantis-x.github.io
-cd volantis-x.github.io
-git clone -b 7.x https://github.com/volantis-x/hexo-theme-volantis themes/volantis
-npm i
-npm install hexo-cli -g
-npm run start   # usually `hexo clean && hexo s`
+npm install             # 一次
+npx hexo clean          # 清空 db.json / public/
+npx hexo server         # http://localhost:4000
+npx hexo generate       # 产出 public/
 ```
 
-Release & publishing are automated via GitHub Actions — do not run `npm publish` manually:
-- `.github/workflows/release-please.yml` — release-please drives version bumps & `CHANGELOG.md` from Conventional Commits against branch `7.x`.
-- `.github/workflows/npm-publish.yml` — publishes to npm (uses OIDC, no NODE_AUTH_TOKEN).
+改动 `themes/volantis/scripts/**` 里的 tag plugin 后，必须 `rm db.json && npx hexo server` 才会重新执行 —— Hexo 会把 tag 渲染结果缓存进 db.json，只重启 server 不够。
 
-Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (enforced by release-please: `feat:`, `fix:`, `perf:`, `refactor:`, etc., optionally scoped like `fix(md): ...`).
+本仓库没有测试 / lint / 构建脚本；改动后靠 `hexo s` + 浏览器自测。
 
-## Big-picture architecture
+## 关键定制点（相对于 Volantis 上游）
 
-### Configuration merging — this is the central concept
+- **`themes/volantis/scripts/tags/photogallery.js`** —— 新增 `{% photogallery [col] [group] %}` tag。自动扫描 `themes/volantis/source/photography/{thumbs,originals}/`，配合 `captions.yml` 生成"hero + 最近更新 + 全部作品"三段布局。
+- **`themes/volantis/scripts/events/lib/random-cover.js`** —— 每次 Hexo 构建时，从 `themes/volantis/source/photography/originals/` 随机挑一张覆盖 `cover.background`。`hexo s` 重启或文件变化触发 regenerate 时即换。
+- **`themes/volantis/source/js/app.js`** 的 `VolantisFancyBox.Images.content` —— 修复 thumb/full 分离时 lightbox 误取 thumb URL 的问题，同时剥除 lazyload 注入的 `srcset="data:image/gif..."` 占位符。
+- **Footer**（`themes/volantis/_config.yml:site_footer`）—— 许可证改为 CC BY 4.0；删除 `info` 行（Use Volantis as theme）；新增 `credits` 行一次性归属 Twemoji / Font Awesome / Fancybox / Volantis。
+- **Nav**（`_config.yml` → `theme_config` 或 `themes/volantis/_config.yml:navbar.menu`）—— 博客 / 分类 / 标签 / 归档 / 关于 / 🌙 暗黑；首页 cover 坞是 博客 / 时间轴 / 摄影 / github。
 
-There are **three** sources of configuration that get merged at build time, and understanding this is required before touching almost anything:
+## 坑点备忘
 
-1. `_config.yml` (theme root, ~56k lines of YAML) — the shipped defaults. Also `_cdn.yml` for CDN package manifests.
-2. User's `source/_data/volantis.yml` in their Hexo site — full override or deep merge.
-3. User's `theme_config:` block in their Hexo site's `_config.yml` — deep-merged if no `volantis.yml`.
-
-The merge happens in `scripts/events/lib/config.js` on the `generateBefore` hook. Flow:
-- If `data.volantis.override` is true → replace `hexo.theme.config` entirely.
-- Else if `data.volantis` exists → deep-merge into both `hexo.config` and `hexo.theme.config`.
-- Else → deep-merge `hexo.config.theme_config` into `hexo.theme.config`.
-
-After this, read everything from `hexo.theme.config` (accessible as `theme` in EJS). Also: `hexo.config.meta_generator = false` and caching may force `relative_link = false` to avoid broken relative links when HTML is cached.
-
-### CDN System
-
-`_cdn.yml` lists every external asset (JS/CSS) with per-provider metadata. At runtime, `scripts/events/lib/cdn.js` rewrites any URL starting with `volantis-local/`, `volantis-npm/`, `volantis-static/`, or `volantis-cdnjs/` to the corresponding provider's prefix according to `cdn_system.priority` in `_config.yml`. When you add a new external dependency, add an entry to `_cdn.yml`, reference it by its `volantis-<provider>/...` alias, and expose it via `hexo.theme.config.cdn.<name>` for tags/helpers.
-
-### Hexo extension surface — where things live
-
-Everything this theme adds to Hexo is registered through `scripts/`:
-
-- `scripts/events/index.js` — entry point. On `generateBefore`, runs config merge + `stellar-tag-utils` (arg parser for tag plugins, originally from hexo-theme-stellar) + `render-stylus` (attaches `hexo.renderStylus`, `hexo.createUuid`, `hexo.merge`, `hexo.getType` to the hexo instance) + optional environment check when `debug: env`.
-- `scripts/filters/` — post/page HTML transforms:
-  - `img.js`: wraps `<p><img></p>` with caption markup.
-  - `replace.js`: runs user-defined `theme.replace` regex list (priority `999999999999`, after everything).
-  - `z-lazyload.js`, `content-visibility.js`: perf-oriented rewrites.
-- `scripts/helpers/` — EJS helpers (`FirstCSS()`, `getList`, `volantis_inject`, SEO/title/description/canonical generators, related posts, structured data).
-- `scripts/tags/` — Hexo tag plugins (`{% note %}`, `{% md %}`, `{% btn %}`, `{% tabs %}`, `{% friends %}`, `{% timeline %}`, `{% swiper %}`, …). Many use `hexo.args.map(...)` from `stellar-tag-utils.js` to parse `key:value` positional arguments.
-
-### Layout (EJS templates)
-
-Entry is `layout/layout.ejs`; `layout/_pre.ejs` is rendered inside each page-type template (`index.ejs`, `post.ejs`, `page.ejs`, `category.ejs`, `tag.ejs`, `archive.ejs`, `list.ejs`, `friends.ejs`, `docs.ejs`, `404.ejs`) to normalize `page.cover` and `page.sidebar` from `theme.cover.display.*` and `theme.sidebar.for_page/for_post`.
-
-Structure:
-- `layout/_partial/` — header, footer, cover, side, post, article, meta, scripts/…
-- `layout/_widget/` — sidebar widgets (blogger, category, tagcloud, toc, music, grid, …). User picks widgets via `sidebar.for_page` / `sidebar.for_post`.
-- `layout/_meta/` — post metadata fragments (author, date, wordcount, share, category, tags, counter variants).
-- `layout/_plugins/` — one folder per optional integration (comments: artalk/valine/waline/disqus/…; search: algolia/hexo/meilisearch; analytics; aplayer; chat; darkmode; highlight; lazyload; scrollreveal; share; toc; tianligpt; etc.). The `scripts/` partials pick which to include based on config.
-
-### Styles (Stylus) — two-phase loading
-
-Read `source/css/Readme.md`. The two-phase pattern is deliberate and based on <https://blog.skk.moe/post/improve-fcp-for-my-blog/>:
-
-- `source/css/first.styl` → rendered via `hexo.renderStylus` by `scripts/helpers/first-style.js` and **inlined** into HTML by the `FirstCSS()` helper. Contains only first-paint-critical rules (base, navbar, cover, first-screen search, first-screen dark mode, font faces).
-- `source/css/style.styl` → compiled to `/css/style.css` by `hexo-renderer-stylus` and loaded async. Contains everything else.
-
-Dark mode is split accordingly: `_first/dark_first.styl` (inlined CSS variables + forced overrides) and `_style/_plugins/_dark/dark_async.styl` / `dark_plugins.styl` (async).
-
-Subdirectories:
-- `_defines/` — variables/mixins (`color.styl`, `layout.styl`, `fonts.styl`, `effect.styl`, `func.styl`, `AutoPrefixCSS.styl`).
-- `_first/` — the critical-path partials `first.styl` imports.
-- `_style/_base/`, `_style/_layout/`, `_style/_plugins/`, `_style/_tag-plugins/` — the async bundle.
-
-When touching CSS, decide first: is this above-the-fold (→ `_first/`) or not (→ `_style/`)? Don't duplicate rules across both.
-
-### Client JS
-
-- `source/js/app.js` — bootstraps `VolantisApp`, `VolantisFancyBox`, highlight-keywords, anchor scrolling on `DOMContentLoaded`.
-- `source/js/plugins/` — `aplayer.js`, `parallax.js`, `rightMenus.js`, `tags/` (per-tag client behavior like `sites.js`).
-- `source/js/search/` — `algolia.js`, `hexo.js`, `meilisearch.js` (one runtime chosen by config).
-
-Scripts are exposed to templates through the CDN system names (`volantis_app`, `volantis_aplayer`, …) defined in `_cdn.yml`.
-
-### Custom Files injection points
-
-`scripts/helpers/custom-files.js` (modified from NexT) defines user override points by name. `volantis_inject(<point>)` in layouts pulls them in. Points:
-- Styles: `first`, `style`, `dark`, `darkVar`.
-- Views: `headBegin`, `headEnd`, `header`, `side`, `topMeta`, `bottomMeta`, `footer`, `postEnd`, `bodyBegin`, `bodyEnd`.
-
-Files under these points are watched only when Hexo is run as `hexo s`/`hexo server` (checked via `process.argv[2]`).
-
-### i18n
-
-`languages/en.yml`, `zh-CN.yml`, `zh-TW.yml`. Users can extend via `source/_data/languages.yml`; `config.js` merges per-lang entries into `hexo.theme.i18n` (supports Hexo's array-of-languages config).
-
-## Conventions to respect
-
-- **Don't add a build step.** There's no webpack/rollup/esbuild here. Client JS is shipped as-is; CSS compiles via `hexo-renderer-stylus`. Keep it that way unless the user asks.
-- **Don't invent scripts.** `package.json` has no real test/lint/build. Only touch it to update dependencies or version (releases are automated).
-- **Styles go to the right phase.** If you add a rule for something visible on first paint (navbar, cover, base typography, first-screen search) it belongs in `_first/`; everything else in `_style/`. Same for dark mode.
-- **External assets go through `_cdn.yml` + the CDN System.** Don't hardcode `https://cdn.jsdelivr.net/...` URLs in templates; use `volantis-local/...` / `volantis-npm/...` / `volantis-static/...` / `volantis-cdnjs/...` aliases or add a `cdn.<name>` entry.
-- **Tag plugins take `key:value` args.** Use `hexo.args.map(args, keys, others)` from `scripts/events/lib/stellar-tag-utils.js` rather than hand-parsing.
-- **Config reads go through `hexo.theme.config` / EJS `theme`**, because of the merge layering above. Don't read user settings from `hexo.config.theme_config` directly after `generateBefore`.
-- **Commits follow Conventional Commits.** Scopes are lowercase and often map to a subsystem (`md`, `artalk`, `comment`, `pandown`, `rightmenu`, `highlightjs`, …). The changelog is generated from commit messages — write them as the public release note.
-- **`7.x` is the breaking-change branch.** `_config.yml` shouts this at the top. Don't worry about back-compat with 5.x/6.x unless the task says so; do flag breaking changes in commit messages with `!` or a `BREAKING CHANGE:` footer so release-please picks them up.
-
-## Useful entry points when debugging
-
-- Config issues → `scripts/events/lib/config.js` + `scripts/events/lib/check-configuration.js`.
-- Broken CDN URL → `scripts/events/lib/cdn.js` + `_cdn.yml`.
-- First-paint CSS not updating → `scripts/helpers/first-style.js` caches in `hexo.locals`; run `hexo clean` in the consuming site.
-- Tag plugin misparsing args → `scripts/events/lib/stellar-tag-utils.js` (`hexo.args.map`).
-- Custom file injection not firing → `scripts/helpers/custom-files.js` (check point name is spelled exactly, and that you're running `hexo s` for watch).
-- Env-check on startup → set `debug: env` in `_config.yml`; runs `scripts/events/lib/check-environment.js` on `generateBefore`.
+- **Hexo 架构约束**：markdown 页面必须放在站点 `source/`（即根 `source/`），放在 `themes/volantis/source/` 会被当静态资源只跑 md 渲染器、不走 EJS layout。摄影页 `index.md` 在 `source/photography/index.md`，照片文件本身在 `themes/volantis/source/photography/originals/`（随主题走）。
+- **静态资源合并**：Hexo 构建时把 `themes/<name>/source/` 和站点 `source/` 的文件合并到同一个 URL 命名空间。所以 `/photography/originals/photo-01.jpeg` 来自主题、`/photography/index.html` 来自站点，二者并存不冲突。
+- **post asset folder**：`_config.yml:post_asset_folder: true`。每篇 post 可挂同名子文件夹放图。但 markdown 里的相对图片路径 Hexo 默认不改写成完整 URL —— 必须手动写成绝对路径 `/2026/04/21/<post-slug>/image.svg`，否则会渲染成根路径 404。
+- **TOC 锚点大小写**：`hexo-renderer-marked@7` 默认保留 heading 原文大小写（`1-AI-基础...`）；源 markdown 里 GitHub 风格小写锚点（`#1-ai-基础...`）会 404。已修过 4 篇 AI 文的锚点，后续新文注意保持一致。
+- **db.json 是编译缓存**：改 tag plugin / Stylus 后，除了重启 server 还要 `rm db.json`，否则看不到变化。

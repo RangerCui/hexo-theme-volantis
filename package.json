@@ -1,31 +1,29 @@
 {
-  "name": "hexo-theme-volantis",
-  "version": "7.0.0-alpha.0",
-  "description": "Elegant and powerful theme for Hexo.",
-  "main": "package.json",
+  "name": "rangercui-blog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RangerCui 的个人博客（基于 Volantis 主题 fork，主题与站点内容合并在同一仓库）",
   "scripts": {
-    "test": "echo test"
+    "build": "hexo generate",
+    "clean": "hexo clean",
+    "deploy": "hexo deploy",
+    "server": "hexo server",
+    "start": "hexo clean && hexo server"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/volantis-x/hexo-theme-volantis.git"
+  "hexo": {
+    "version": "8.1.1"
   },
-  "keywords": [
-    "hexo",
-    "theme",
-    "volantis"
-  ],
-  "author": "Volantis X (https://github.com/volantis-x/)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/volantis-x/hexo-theme-volantis/issues"
-  },
-  "homepage": "https://volantis.js.org",
   "dependencies": {
     "hexo": "^8.1.1",
     "hexo-fs": "^5.0.0",
-    "hexo-renderer-stylus": "^3.0.0",
+    "hexo-generator-archive": "^2.0.0",
+    "hexo-generator-category": "^2.0.0",
+    "hexo-generator-index": "^4.0.0",
+    "hexo-generator-json-content": "^4.2.3",
+    "hexo-generator-tag": "^2.0.0",
     "hexo-renderer-ejs": "^2.0.0",
-    "hexo-generator-json-content": "^4.2.3"
+    "hexo-renderer-marked": "^7.0.0",
+    "hexo-renderer-stylus": "^3.0.1",
+    "hexo-server": "^3.0.0"
   }
 }
