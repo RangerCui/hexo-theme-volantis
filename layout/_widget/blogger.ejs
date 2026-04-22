@@ -12,7 +12,7 @@
         </div>
       <% } %>
     <% } %>
-    <% if (item.title || item.subtitle || item.jinrishici) { %>
+    <% if (item.title || item.subtitle || item.jinrishici || item.bio) { %>
       <div class='text'>
         <% if (item.title){ %>
           <h2><%- item.title %></h2>
@@ -23,6 +23,9 @@
         <% if (item.jinrishici){ %>
           <p><span id="jinrishici-sentence"><%- item.jinrishici != true ? item.jinrishici : config.title %></span></p>
           <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+        <% } %>
+        <% if (item.bio){ %>
+          <div class='bio'><%- markdown(item.bio) %></div>
         <% } %>
       </div>
     <% } %>

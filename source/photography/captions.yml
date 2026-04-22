@@ -1,0 +1,44 @@
+# 摄影作品元信息。键 = thumbs/originals 文件名。
+# 可用字段：date / title / intro（desc / summary 同义）
+# 由 scripts/tags/photogallery.js 读取。
+
+photo-01.jpeg:
+  date: 2026-04-22
+  title: ""
+  intro: ""
+
+photo-02.jpeg:
+  date: 2026-04-22
+  title: ""
+  intro: ""
+
+photo-03.jpeg:
+  date: 2026-04-22
+  title: ""
+  intro: ""
+
+photo-04.jpeg:
+  date: 2026-04-22
+  title: ""
+  intro: ""
+
+photo-05.jpeg:
+  date: 2026-04-22
+  title: ""
+  intro: ""
+
+photo-06.jpeg:
+  date: 2026-04-22
+  title: ""
+  intro: ""
+
+photo-07.jpeg:
+  date: 2026-04-22
+  title: ""
+  intro: ""
+
+photo-08.jpeg:
+  date: 2026-04-22
+  title: ""
+  intro: ""
+

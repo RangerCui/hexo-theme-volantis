@@ -30,7 +30,7 @@ post:
     license: License
 
 footer:
-  license: 'Blog content follows the [Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)'
+  license: 'Blog content is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en) — 允许转载、二次创作与商用，请注明出处并附原文链接'
   use: Use
   theme: as theme
   total_views: total visits

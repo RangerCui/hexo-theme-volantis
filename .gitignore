@@ -4,3 +4,11 @@ _site/
 .DS_Store
 node_modules
 package-lock.json
+
+# Debug / local tooling artifacts (not part of the theme)
+.playwright-mcp/
+.spec-workflow/
+*.png
+# Stylus 是源；.css 由 hexo-renderer-stylus 运行时生成
+source/css/_style/_tag-plugins/photogallery.css
+

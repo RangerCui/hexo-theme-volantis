@@ -6,6 +6,7 @@ const configLib = require('./lib/config');
 const stellarTagUtilsLib = require('./lib/stellar-tag-utils');
 const renderStylusLib = require('./lib/render-stylus');
 const checkEnvironmentLib = require('./lib/check-environment');
+const randomCoverLib = require('./lib/random-cover');
 const { version } = require('../../package.json');
 
 hexo.on('generateBefore', () => {
@@ -13,6 +14,7 @@ hexo.on('generateBefore', () => {
   configLib(hexo);
   stellarTagUtilsLib(hexo);
   renderStylusLib(hexo);
+  randomCoverLib(hexo); // 覆盖 cover.background 为 photography 目录中的随机一张
   if (hexo.theme.config.debug === "env") {
     checkEnvironmentLib(hexo);
   }

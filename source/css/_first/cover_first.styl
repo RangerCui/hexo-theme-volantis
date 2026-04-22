@@ -222,7 +222,20 @@
         color: alpha($color-text, .7)
         font-size: 1.5rem
         i
-          margin: $gap * 0.5
+          margin: $gap * 0.25
+          font-size: 40px
+          line-height: 40px
+          text-align: center
+          @media screen and (max-width: $device-tablet)
+            font-size: 36px
+            line-height: 36px
+          @media screen and (max-width: $device-mobile)
+            margin: 2px $gap * 0.25
+            font-size: 32px
+            line-height: 32px
+          @media screen and (max-width: $device-mobile-m)
+            font-size: 28px
+            line-height: 28px
         p
           font-size: $fontsize-meta
         &.active

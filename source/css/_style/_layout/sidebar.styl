@@ -146,6 +146,18 @@
       .text
         :first-child
           margin-top: $gap
+        .bio
+          margin: $gap * 0.75 $gap * 0.5 $gap * 0.5
+          padding: $gap * 0.5 $gap * 0.75
+          border-radius: $border-searchbar
+          background: alpha($color-card, .5)
+          font-size: $fontsize-meta
+          line-height: 1.6
+          color: var(--color-meta)
+          text-align: center
+          p
+            margin: 0
+            font-weight: normal
       h2
         text-align: center
         font-weight: bold

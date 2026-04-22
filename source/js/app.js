@@ -685,9 +685,18 @@ class VolantisFancyBox {
         content: (_ref, slide) => {
           const imgElement = slide.thumbEl;
           const pictureElement = imgElement.closest('picture');
-          if (imgElement.hasAttribute('data-src')) {
-            imgElement.setAttribute('src', imgElement.getAttribute('data-src'));
-          }
+          const anchorElement = imgElement.closest('a[href]');
+          // 优先用外层 <a href> 作为大图 URL；支持 thumb/full 分离的相册（例如 photogallery）。
+          // 不改写页面上的 live img src，避免触发原图重复下载或污染缩略图。
+          const anchorHref = anchorElement ? anchorElement.getAttribute('href') : '';
+          const fullSrc = anchorHref && anchorHref !== imgElement.getAttribute('src')
+            ? anchorHref
+            : (imgElement.getAttribute('data-src') || imgElement.getAttribute('src'));
+          // lazyload 会往 img 上塞一个占位 srcset="data:image/gif..."，lightbox 必须剥掉再注入大图 src
+          const rewriteImgTag = (imgHtml) => imgHtml
+            .replace(/\ssrcset=(["'])[^"']*\1/, '')
+            .replace(/\sdata-srcset=(["'])[^"']*\1/, '')
+            .replace(/(\ssrc=)(["'])[^"']*\2/, `$1"${fullSrc}"`);
           if (pictureElement) {
             pictureElement.classList.remove("lazy");
             let sources = pictureElement.getElementsByTagName('source');
@@ -696,9 +705,9 @@ class VolantisFancyBox {
                 source.setAttribute('srcset', source.getAttribute('data-srcset'));
               }
             }
-            return pictureElement.outerHTML;
+            return pictureElement.outerHTML.replace(/<img\b[^>]*>/, match => rewriteImgTag(match));
           } else {
-            return imgElement.outerHTML;
+            return rewriteImgTag(imgElement.outerHTML);
           }
         },
         Panzoom: {

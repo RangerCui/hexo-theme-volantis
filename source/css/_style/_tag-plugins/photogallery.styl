@@ -1,0 +1,140 @@
+// photogallery.styl
+// 模仿 chuckdries.com/photos 的区块结构：
+// Hero + Recently published 横向带 + All images 大图墙。
+
+div.gallery.photogallery.cd-template
+  display: block
+  margin: 0
+  overflow: visible
+
+  .cd-gallery-hero
+    border-radius: $border-card
+    background: linear-gradient(180deg, #111720 0%, #1a212c 100%)
+    color: #eaf0f8
+    padding: $gap $gap
+    margin-bottom: $gap
+    h2
+      margin: 0
+      font-size: $fontsize-h2
+      line-height: 1.2
+      letter-spacing: 0.01em
+      color: #f6f9fe
+    p
+      margin: $gap-p 0 0
+      font-size: $fontsize-meta
+      color: rgba(234, 240, 248, 0.78)
+
+  .cd-gallery-section
+    margin-bottom: $gap
+
+  .cd-section-head
+    margin-bottom: $gap-p
+    h3
+      margin: 0
+      font-size: $fontsize-h4
+      line-height: 1.25
+      color: var(--color-h2)
+
+  .cd-recent-strip
+    display: grid
+    grid-auto-flow: column
+    grid-auto-columns: minmax(280px, 34%)
+    gap: $gap
+    overflow-x: auto
+    padding-bottom: $gap-p
+    scroll-snap-type: x proximity
+    &::-webkit-scrollbar
+      height: 6px
+    &::-webkit-scrollbar-thumb
+      border-radius: 99px
+      background: rgba(120, 130, 145, 0.4)
+
+  .cd-masonry
+    column-count: 2
+    column-gap: $gap
+    @media screen and (max-width: $device-laptop)
+      column-count: 2
+    @media screen and (max-width: $device-mobile-l)
+      column-count: 1
+
+  &[col='1'] .cd-masonry
+    column-count: 1
+  &[col='2'] .cd-masonry
+    column-count: 2
+  &[col='3'] .cd-masonry
+    column-count: 3
+  &[col='4'] .cd-masonry
+    column-count: 4
+  &[col='5'] .cd-masonry
+    column-count: 5
+  &[col='6'] .cd-masonry
+    column-count: 6
+  @media screen and (max-width: $device-laptop)
+    &[col='4'] .cd-masonry,
+    &[col='5'] .cd-masonry,
+    &[col='6'] .cd-masonry
+      column-count: 3
+  @media screen and (max-width: $device-mobile-l)
+    &[col='2'] .cd-masonry,
+    &[col='3'] .cd-masonry,
+    &[col='4'] .cd-masonry,
+    &[col='5'] .cd-masonry,
+    &[col='6'] .cd-masonry
+      column-count: 1
+
+  .photo-card
+    break-inside: avoid
+    border-radius: $border-card
+    overflow: hidden
+    background: var(--color-card)
+    box-shadow: 0 10px 30px -22px rgba(12, 20, 33, 0.55)
+    margin-bottom: $gap
+    transition: transform 0.3s ease, box-shadow 0.3s ease
+    &:hover
+      transform: translateY(-2px)
+      box-shadow: 0 18px 34px -24px rgba(12, 20, 33, 0.62)
+
+  .photo-link
+    display: block
+    line-height: 0
+
+  .photo-card--recent
+    scroll-snap-align: start
+    margin-bottom: 0
+
+  .photo-card--recent .photo-link img
+    width: 100%
+    aspect-ratio: 4 / 3
+    object-fit: cover
+
+  .photo-card--all .photo-link img
+    width: 100%
+    height: auto
+    display: block
+
+  .photo-meta
+    padding: $gap-p $gap
+
+  .photo-title
+    margin: 0
+    font-size: $fontsize-h6
+    line-height: 1.35
+    color: var(--color-h2)
+
+  .photo-intro
+    margin: $gap-p 0 0
+    font-size: $fontsize-meta
+    line-height: 1.65
+    color: var(--color-p)
+
+  .photo-meta time
+    display: inline-block
+    margin-top: $gap-p
+    font-size: $fontsize-code
+    color: var(--color-meta)
+
+  @media screen and (max-width: $device-mobile)
+    .cd-gallery-hero
+      padding: $gap
+    .cd-recent-strip
+      grid-auto-columns: minmax(240px, 82%)
