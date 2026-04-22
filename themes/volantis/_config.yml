@@ -165,7 +165,7 @@ cover:
     home: true
     archive: true
     others: false # can be written in front-matter 'cover: true'
-  background: # 运行时由 scripts/events/lib/random-cover.js 每次构建从 photography/originals/ 随机选一张覆盖
+  background: /photography/originals/photo-04.jpeg # 固定使用摄影 #04 作为首页 cover 背景
   # background: https://gcore.jsdelivr.net/gh/MHG-LAB/cron@gh-pages/bing/bing.jpg
   # background: https://bing.ioliu.cn/v1/rand?w=1920&h=1200
   logo: # https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/Logo-Cover@3x.png
