@@ -3,17 +3,17 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
-subtitle: ''
-description: ''
-keywords:
-author: John Doe
-language: en
-timezone: ''
+title: RangerCui
+subtitle: 代码与光影
+description: RangerCui 的个人博客：AI 工具实战、Agent 工程、以及旅途中的摄影作品。
+keywords: RangerCui,博客,AI,Agent,Prompt Engineering,摄影,Hexo
+author: RangerCui
+language: zh-CN
+timezone: Asia/Shanghai
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
+url: https://rangercui.github.io
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
