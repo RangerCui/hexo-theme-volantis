@@ -373,7 +373,7 @@ article:
 comments:
   title: <i class='fa-solid fa-comments'></i> 评论
   subtitle:
-  service: giscus
+  service: false # 关闭评论（原值 giscus 未配置会报错）；启用时填 giscus / artalk / waline / twikoo / disqus 之一
   # 可选评论系统 #
 
   # artalk
