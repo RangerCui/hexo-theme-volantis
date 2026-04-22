@@ -138,3 +138,63 @@ div.gallery.photogallery.cd-template
       padding: $gap
     .cd-recent-strip
       grid-auto-columns: minmax(240px, 82%)
+
+// 分页导航 & 计数标签
+div.gallery.photogallery.cd-template
+  .cd-section-head
+    display: flex
+    align-items: baseline
+    gap: $gap-p
+    .cd-count
+      font-family: monospace
+      font-size: $fontsize-code
+      color: var(--color-meta)
+      letter-spacing: 0.04em
+
+  .cd-pagination
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: $gap-p * 0.5
+    margin-top: $gap
+    padding-top: $gap-p
+    border-top: 1px solid var(--color-block)
+    flex-wrap: wrap
+    button
+      appearance: none
+      -webkit-appearance: none
+      border: 1px solid var(--color-block)
+      background: var(--color-card)
+      color: var(--color-p)
+      font: inherit
+      padding: 0.4em 0.9em
+      border-radius: $border-card
+      cursor: pointer
+      line-height: 1
+      font-variant-numeric: tabular-nums
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease
+      &:hover:not(:disabled)
+        background: var(--color-block)
+        border-color: var(--color-meta)
+      &:active:not(:disabled)
+        transform: translateY(1px)
+      &:disabled
+        opacity: 0.4
+        cursor: not-allowed
+    .pg-pages
+      display: flex
+      gap: 0.25em
+    .pg-page.is-current
+      background: var(--color-h2)
+      color: var(--color-card)
+      border-color: var(--color-h2)
+      font-weight: 600
+
+  @media screen and (max-width: $device-mobile)
+    .cd-section-head
+      flex-wrap: wrap
+    .cd-pagination
+      gap: 0.3em
+      button
+        padding: 0.35em 0.7em
+        font-size: 0.9rem
